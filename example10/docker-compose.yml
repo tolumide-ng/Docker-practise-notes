@@ -1,0 +1,40 @@
+version: '3'
+services:
+    wordpress:
+        # Build here instructs docker-compose to look at the current directory (.) and use the found dockerfile to build the image for this service
+        build: .
+        image: tolumide/wordpress:5.3.2-php7.2-apache
+        environment:
+            - WORDPRESS_DB_USER=${MYSQL_USER}
+            - WORDPRESS_DB_PASSWORD=${MYSQL_PASSWORD}
+        ports:
+        - 8080:80
+        networks:
+            - wordpressnet
+        volumes:
+            # map service to its appropriate volume
+            - wordpressdata:/var/www/html
+    mysql:
+        image: mariadb:latest
+        environment:
+            - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+            - MYSQL_USER=${MYSQL_USER}
+            - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+            - MYSQL_DATABASE=${MYSQL_DATABASE}
+        networks:
+            - wordpressnet
+        volumes:
+            - mariadbdata:/var/lib/mysql
+networks:
+    wordpressnet:
+        driver: bridge
+volumes:
+    wordpressdata:
+    mariadbdata:
+
+
+# docker compose up -d
+# In the case where there is more than one docker-compose file use => -f flag to specify the exact docker-compose.yml file you want to run
+
+# docker-compose -f docker-compose.yml up -d
+# failing to specify the docker-compose file with the -f flag will allow the use of docker-compose.override.yml file if it is present
